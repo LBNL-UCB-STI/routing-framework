@@ -14,6 +14,7 @@
 #include "DataStructures/Graph/Attributes/CapacityAttribute.h"
 #include "DataStructures/Graph/Attributes/CoordinateAttribute.h"
 #include "DataStructures/Graph/Attributes/FreeFlowSpeedAttribute.h"
+#include "DataStructures/Graph/Attributes/WayIdAttribute.h"
 #include "DataStructures/Graph/Attributes/LatLngAttribute.h"
 #include "DataStructures/Graph/Attributes/LengthAttribute.h"
 #include "DataStructures/Graph/Attributes/NumLanesAttribute.h"
@@ -53,7 +54,7 @@ inline void printUsage() {
       "                        capacity coordinate free_flow_speed lat_lng length\n"
       "                        num_lanes osm_road_category road_geometry\n"
       "                        sequential_vertex_id speed_limit travel_time vertex_id\n"
-      "                        xatf_road_category\n"
+      "                        xatf_road_category way_id\n"
       "  -i <file>         input file(s) without file extension\n"
       "  -o <file>         output file(s) without file extension\n"
       "  -help             display this help and exit\n";
@@ -63,7 +64,7 @@ inline void printUsage() {
 using VertexAttributes = VertexAttrs<
     CoordinateAttribute, LatLngAttribute, SequentialVertexIdAttribute, VertexIdAttribute>;
 using EdgeAttributes = EdgeAttrs<
-    CapacityAttribute, FreeFlowSpeedAttribute, LengthAttribute,
+    CapacityAttribute, FreeFlowSpeedAttribute, LengthAttribute, WayIdAttribute,
     NumLanesAttribute, OsmRoadCategoryAttribute, RoadGeometryAttribute, SpeedLimitAttribute,
     TravelTimeAttribute, XatfRoadCategoryAttribute>;
 using GraphT = StaticGraph<VertexAttributes, EdgeAttributes>;

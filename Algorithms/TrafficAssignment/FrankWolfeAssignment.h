@@ -58,7 +58,11 @@ class FrankWolfeAssignment {
       FORALL_EDGES(graph, e) {
         const auto vol = trafficFlows[e];
         const auto sat = vol / graph.capacity(e);
-        flowFile << aonAssignment.stats.numIterations << ',' << vol << ',' << sat << '\n';
+        const auto time = graph.travelTime(e);
+        const auto wayId = graph.wayId(e);
+        const auto bprResult = traversalCostFunction(e, trafficFlows[e]);
+
+        flowFile << aonAssignment.stats.numIterations << ',' << vol << ',' << sat << ',' << time << ',' << wayId << ',' << bprResult << '\n';
       }
 
     if (distFile.is_open())
@@ -101,7 +105,11 @@ class FrankWolfeAssignment {
         FORALL_EDGES(graph, e) {
           const auto vol = trafficFlows[e];
           const auto sat = vol / graph.capacity(e);
-          flowFile << aonAssignment.stats.numIterations << ',' << vol << ',' << sat << '\n';
+          const auto time = graph.travelTime(e);
+          const auto wayId = graph.wayId(e);
+          const auto bprResult = traversalCostFunction(e, trafficFlows[e]);
+
+          flowFile << aonAssignment.stats.numIterations << ',' << vol << ',' << sat << ',' << time << ',' << wayId << ',' << bprResult << '\n';
         }
 
       if (distFile.is_open() && outputIntermediates)
@@ -130,7 +138,11 @@ class FrankWolfeAssignment {
       FORALL_EDGES(graph, e) {
         const auto vol = trafficFlows[e];
         const auto sat = vol / graph.capacity(e);
-        flowFile << aonAssignment.stats.numIterations << ',' << vol << ',' << sat << '\n';
+        const auto time = graph.travelTime(e);
+        const auto wayId = graph.wayId(e);
+        const auto bprResult = traversalCostFunction(e, trafficFlows[e]);
+
+        flowFile << aonAssignment.stats.numIterations << ',' << vol << ',' << sat << ',' << time << ',' << wayId << ',' << bprResult << '\n';
       }
 
     if (distFile.is_open() && !outputIntermediates)

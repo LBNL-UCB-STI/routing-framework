@@ -11,6 +11,7 @@
 
 #include <routingkit/osm_graph_builder.h>
 #include <routingkit/tag_map.h>
+#include <routingkit/id_mapper.h>
 
 #include "DataStructures/Graph/Attributes/CapacityAttribute.h"
 #include "DataStructures/Graph/Attributes/FreeFlowSpeedAttribute.h"
@@ -170,8 +171,9 @@ class OsmImporter {
     };
 
     // Eventually, actually perform the work. Extract a graph from OSM data.
-    const auto mapping =
+    mapping =
         RoutingKit::load_osm_id_mapping_from_pbf(filename + ".osm.pbf", nullptr, isWayOpenForCars);
+    wayIdMapper = RoutingKit::IDMapper(mapping.is_routing_way);
     const int numWaysOpenForCars = mapping.is_routing_way.population_count();
     wayCategory.resize(numWaysOpenForCars);
     waySpeed.resize(numWaysOpenForCars);
@@ -277,6 +279,8 @@ class OsmImporter {
   };
 
   RoutingKit::OSMRoutingGraph osmGraph;     // The graph extracted from OSM data.
+  RoutingKit::OSMRoutingIDMapping mapping;  // Id mapping.
+  RoutingKit::IDMapper wayIdMapper;         // Way Id mapping.
   std::vector<OsmRoadCategory> wayCategory; // The OSM road category for each way.
   std::vector<double> waySpeed;             // The speed limit for each way.
   std::vector<double> numLanesInForward;    // The number of forward lanes for each way.
@@ -311,6 +315,13 @@ inline FreeFlowSpeedAttribute::Type OsmImporter::getValue<FreeFlowSpeedAttribute
   assert(currentEdge >= 0); assert(currentEdge < osmGraph.arc_count());
   const int way = osmGraph.way[currentEdge];
   return std::round(roadDefaults.at(wayCategory[way]).freeFlowFactor * waySpeed[way]);
+}
+
+// Returns the value of the way id attribute for the current edge.
+template <>
+inline WayIdAttribute::Type OsmImporter::getValue<WayIdAttribute>() const {
+  assert(currentEdge >= 0); assert(currentEdge < osmGraph.arc_count());
+  return wayIdMapper.to_global(osmGraph.way[currentEdge]);
 }
 
 // Returns the value of the length attribute for the current edge.

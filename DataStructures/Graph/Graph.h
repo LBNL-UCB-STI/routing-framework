@@ -712,6 +712,7 @@ class Graph<VertexAttrs<VertexAttributes...>, EdgeAttrs<EdgeAttributes...>, dyna
     int numVertices;
     bio::read(in, numVertices);
     bio::read(in, edgeCount);
+
     assert(numVertices >= 0);
     assert(edgeCount >= 0);
     outEdges.resize(numVertices + !dynamic);
