@@ -83,11 +83,14 @@ class FrankWolfeAssignment {
       std::cout << std::flush;
     }
 
-    while ((numIterations != 0 || stats.prevRelGap > 1e-4 || prevSkipInterval > 1) &&
+    // reducing target value stats.prevRelGap from 1e-4 to 1e-2
+    // reason is - assigment for a lot of ODs (>500k) sometimes this value requires around 50-500 iterations
+    // which is adding from 1 to 30 more minutes of execution
+    while ((numIterations != 0 || stats.prevRelGap > 1e-2 || prevSkipInterval > 1) &&
            (numIterations == 0 || aonAssignment.stats.numIterations < numIterations)) {
       stats.startIteration();
       Timer timer;
-      const unsigned int skip = std::min(std::max(stats.prevRelGap / 1e-4, 1.0), double{-1u});
+      const unsigned int skip = std::min(std::max(stats.prevRelGap / 1e-2, 1.0), double{-1u});
       const auto skipInterval = std::min(roundDownToPowerOfTwo(skip), prevSkipInterval);
       updateTraversalCosts();
       findDescentDirection(skipInterval);
