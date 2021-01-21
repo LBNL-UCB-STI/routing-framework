@@ -1,6 +1,6 @@
 # Routing Framework
 
-This repository contains the C++14 source code used in the following publications/submissions:
+This repository contains the C++17 source code used in the following publications/submissions:
 
 * Valentin Buchhold, Peter Sanders, and Dorothea Wagner. Real-Time Traffic Assignment Using Fast
   Queries in Customizable Contraction Hierarchies. In Gianlorenzo D'Angelo, editor, *Proceedings of
@@ -16,6 +16,14 @@ This repository contains the C++14 source code used in the following publication
 * Valentin Buchhold, Peter Sanders, and Dorothea Wagner. Real-time Traffic Assignment Using
   Engineered Customizable Contraction Hierarchies. ACM Journal of Experimental Algorithmics,
   24(2):2.4:1-2.4:28, 2019. [doi:10.1145/3362693](http://dx.doi.org/10.1145/3362693).
+
+## License
+
+All files in this repository except the files in the directory `External` are licensed under the MIT
+license. External libraries are licensed under their respective licenses. Note that the compiled
+programs `CalculateDemand` and `ComputeUnionBoundary` use libraries that are released under the GNU
+GPLv3, and thus the compiled programs `CalculateDemand` and `ComputeUnionBoundary` have to be under
+the GNU GPLv3.
 
 ## Prerequisites
 
@@ -41,9 +49,10 @@ $ git submodule update --init
 $ cd External
 $ cd fast-cpp-csv-parser && sudo cp *.h /usr/local/include && cd ..
 $ cd randomc && sudo mkdir /usr/local/include/randomc && sudo cp *.cpp *.h $_ && cd ..
+$ cd rapidxml && sudo cp *.hpp /usr/local/include && cd ..
 $ cd RoutingKit && make && sudo cp -r include lib /usr/local && cd ..
 $ cd stocc && sudo mkdir /usr/local/include/stocc && sudo cp *.cpp *.h $_ && cd ..
-$ cd vectorclass && sudo mkdir /usr/local/include/vectorclass && sudo cp *.h special/* $_ && cd ..
+$ cd vectorclass && sudo mkdir /usr/local/include/vectorclass && sudo cp *.h $_ && cd ..
 ```
 
 ## Building

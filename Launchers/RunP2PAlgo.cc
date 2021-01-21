@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -63,10 +64,10 @@ using InputGraph = StaticGraph<VertexAttributes, EdgeAttributes>;
 using LabelSet = BasicLabelSet<0, ParentInfo::NO_PARENT_INFO>;
 
 // The query algorithms.
-using Dij = StandardDijkstra<InputGraph, TravelTimeAttribute, LabelSet>;
+using Dij = Dijkstra<InputGraph, TravelTimeAttribute, LabelSet>;
 using BiDij = BiDijkstra<Dij>;
 template <bool useStalling>
-using CCHDij = StandardCHQuery<LabelSet, useStalling>;
+using CCHDij = CHQuery<LabelSet, useStalling>;
 using CCHTree = EliminationTreeQuery<LabelSet>;
 
 // Writes the header line of the output CSV file.
@@ -77,12 +78,12 @@ inline void writeHeaderLine(std::ofstream& out, AlgoT&) {
 
 // Writes a record line of the output CSV file, containing statistics about a single query.
 template <typename AlgoT>
-inline void writeRecordLine(std::ofstream& out, AlgoT& algo, const int, const int elapsed) {
+inline void writeRecordLine(std::ofstream& out, AlgoT& algo, const int, const int64_t elapsed) {
   out << algo.getDistance() << ',' << elapsed << '\n';
 }
 
 template <>
-inline void writeRecordLine(std::ofstream& out, Dij& algo, const int dst, const int elapsed) {
+inline void writeRecordLine(std::ofstream& out, Dij& algo, const int dst, const int64_t elapsed) {
   out << algo.getDistance(dst) << ',' << elapsed << '\n';
 }
 
