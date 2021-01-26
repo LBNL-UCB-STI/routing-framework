@@ -166,7 +166,7 @@ class OsmImporter {
     numForwardLanes.resize(numWaysOpenForVehicles);
     numReverseLanes.resize(numWaysOpenForVehicles);
     osmGraph = load_osm_routing_graph_from_pbf(
-        filename + ".osm.pbf", idMap, wayCallback, nullptr,
+        filename + ".osm.pbf", mapping, wayCallback, nullptr,
         nullptr, false, RoutingKit::OSMRoadGeometry::uncompressed);
   }
 
