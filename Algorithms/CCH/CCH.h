@@ -89,7 +89,7 @@ class CCH {
     firstDownInputEdge.back() = downInputEdges.size();
   }
 
-  // Returns the order in which vertices were contracted.
+  // Returns the order in which vertices were contracted.000
   const Permutation& getContractionOrder() const noexcept {
     return decomp.order;
   }

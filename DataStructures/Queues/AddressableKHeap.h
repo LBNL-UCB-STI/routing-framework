@@ -25,6 +25,11 @@ class AddressableKHeap {
     return heap.empty();
   }
 
+  // Returns the number of elements in this heap.
+  int size() const noexcept {
+    return heap.size();
+  }
+
   // Returns true if this heap contains an element with the specified ID.
   bool contains(const int id) const {
     assert(0 <= id); assert(id < elementIdToHeapIndex.size());
@@ -88,6 +93,25 @@ class AddressableKHeap {
     assert(newKey <= heap[idx].key);
     heap[idx].key = newKey;
     siftUp(idx);
+  }
+
+  // Increases the key of the element with the specified ID to newKey.
+  void increaseKey(const int id, const int newKey) {
+    assert(contains(id));
+    const int idx = elementIdToHeapIndex[id];
+    assert(newKey >= heap[idx].key);
+    heap[idx].key = newKey;
+    siftDown(idx);
+  }
+
+  // Updates the key of the element with the specified ID to newKey.
+  void updateKey(const int id, const int newKey) {
+    assert(contains(id));
+    const int idx = elementIdToHeapIndex[id];
+    if (newKey <= heap[idx].key)
+      decreaseKey(id, newKey);
+    else
+      increaseKey(id, newKey);
   }
 
  private:

@@ -174,6 +174,11 @@ class Graph<VertexAttrs<VertexAttributes...>, EdgeAttrs<EdgeAttributes...>, dyna
     return edgeHeads.size() - 1;
   }
 
+  // Returns the degree of vertex v.
+  int degree(const int v) const {
+    return lastEdge(v) - firstEdge(v);
+  }
+
   // Returns the index of the first edge out of vertex v.
   int firstEdge(const int v) const {
     assert(v >= 0); assert(v < numVertices());
@@ -193,7 +198,7 @@ class Graph<VertexAttrs<VertexAttributes...>, EdgeAttrs<EdgeAttributes...>, dyna
   }
 
   // Returns the head vertex of edge e.
-  int edgeHead(const int e) const {
+  const int& edgeHead(const int e) const {
     assert(e >= 0); assert(e < edgeHeads.size()); assert(isValidEdge(e));
     return edgeHeads[e];
   }
@@ -620,7 +625,8 @@ class Graph<VertexAttrs<VertexAttributes...>, EdgeAttrs<EdgeAttributes...>, dyna
   template <typename ImporterT = XatfImporter>
   void importFrom(const std::string& filename, ImporterT im = ImporterT()) {
     clear();
-    outEdges.clear();
+    if (!dynamic)
+      outEdges.front().first() = -1;
 
     // Open the input file(s), read the header line(s), and allocate the vertex and edge arrays.
     im.init(filename);
@@ -675,7 +681,7 @@ class Graph<VertexAttrs<VertexAttributes...>, EdgeAttrs<EdgeAttributes...>, dyna
     // outEdges[v].first() stores the index of the first edge out of v.
     int firstEdge = 0; // The index of the first edge out of the current/next vertex.
     std::swap(outEdges[0].first(), firstEdge);
-    for (int v = 1; v != numVertices(); ++v) {
+    for (int v = 1; v < numVertices(); ++v) {
       std::swap(outEdges[v].first(), firstEdge);
       outEdges[v - dynamic].last() = outEdges[v].first();
       firstEdge += outEdges[v].first();

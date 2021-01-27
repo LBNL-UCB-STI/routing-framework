@@ -13,6 +13,7 @@
 #include "DataStructures/Geometry/Point.h"
 #include "DataStructures/Graph/Attributes/CapacityAttribute.h"
 #include "DataStructures/Graph/Attributes/CoordinateAttribute.h"
+#include "DataStructures/Graph/Attributes/EdgeIdAttribute.h"
 #include "DataStructures/Graph/Attributes/FreeFlowSpeedAttribute.h"
 #include "DataStructures/Graph/Attributes/WayIdAttribute.h"
 #include "DataStructures/Graph/Attributes/LatLngAttribute.h"
@@ -27,6 +28,8 @@
 #include "DataStructures/Graph/Attributes/XatfRoadCategoryAttribute.h"
 #include "DataStructures/Graph/Export/DefaultExporter.h"
 #include "DataStructures/Graph/Graph.h"
+#include "DataStructures/Graph/Import/DimacsImporter.h"
+#include "DataStructures/Graph/Import/MatSimImporter.h"
 #include "DataStructures/Graph/Import/OsmImporter.h"
 #include "DataStructures/Graph/Import/VisumImporter.h"
 #include "DataStructures/Graph/Import/XatfImporter.h"
@@ -39,19 +42,24 @@ inline void printUsage() {
       "This program converts a graph from a source file format to a destination format,\n"
       "possibly extracting the largest strongly connected component of the input graph.\n"
       "  -s <fmt>          source file format\n"
-      "                      possible values: binary default dimacs osm visum xatf\n"
+      "                      possible values:\n"
+      "                        binary default dimacs matsim osm visum xatf\n"
       "  -d <fmt>          destination file format\n"
-      "                      possible values: binary default dimacs\n"
+      "                      possible values:\n"
+      "                        binary default dimacs\n"
       "  -c                compress the output file(s), if available\n"
       "  -p <file>         extract a region given as an OSM POLY file\n"
       "  -scc              extract the largest strongly connected component\n"
-      "  -ts <sys>         the system whose network is to be imported (Visum only)\n"
-      "  -cs <epsg-code>   coordinate reference system used in files (Visum only)\n"
+      "  -dp <prec>        travel distances are given in 1/<prec> meters (DIMACS only)\n"
+      "  -tp <prec>        travel times are given in 1/<prec> seconds (DIMACS only)\n"
+      "  -cp <prec>        coordinates are given in 1/<prec> degrees (DIMACS only)\n"
+      "  -ts <sys>         system whose network is to be imported (Visum/MATSim only)\n"
+      "  -cs <epsg-code>   coordinate system used in files (Visum/MATSim only)\n"
       "  -cp <factor>      multiply coordinates in files by <factor> (Visum only)\n"
       "  -ap <hrs>         analysis period, capacity is in vehicles/AP (Visum only)\n"
       "  -a <attrs>        blank-separated list of vertex/edge attributes to be output\n"
       "                      possible values:\n"
-      "                        capacity coordinate free_flow_speed lat_lng length\n"
+      "                        capacity coordinate edge_id free_flow_speed lat_lng length\n"
       "                        num_lanes osm_road_category road_geometry\n"
       "                        sequential_vertex_id speed_limit travel_time vertex_id\n"
       "                        xatf_road_category way_id\n"
@@ -64,7 +72,7 @@ inline void printUsage() {
 using VertexAttributes = VertexAttrs<
     CoordinateAttribute, LatLngAttribute, SequentialVertexIdAttribute, VertexIdAttribute>;
 using EdgeAttributes = EdgeAttrs<
-    CapacityAttribute, FreeFlowSpeedAttribute, LengthAttribute, WayIdAttribute,
+    CapacityAttribute, EdgeIdAttribute, FreeFlowSpeedAttribute, LengthAttribute, WayIdAttribute,
     NumLanesAttribute, OsmRoadCategoryAttribute, RoadGeometryAttribute, SpeedLimitAttribute,
     TravelTimeAttribute, XatfRoadCategoryAttribute>;
 using GraphT = StaticGraph<VertexAttributes, EdgeAttributes>;
@@ -80,6 +88,27 @@ inline GraphT importGraph(const CommandLineParser& clp) {
     if (!in.good())
       throw std::invalid_argument("file not found -- '" + infile + ".gr.bin'");
     return GraphT(in);
+  } else if (format == "dimacs") {
+    const auto distPrecision = clp.getValue<int>("dp", 1);
+    const auto timePrecision = clp.getValue<int>("tp", 10);
+    const auto coordinatePrecision = clp.getValue<int>("cp", 1000000);
+    if (distPrecision <= 0) {
+      const std::string what = "travel distance precision not strictly positive";
+      throw std::invalid_argument(what + " -- '" + std::to_string(distPrecision) + "'");
+    }
+    if (timePrecision <= 0) {
+      const std::string what = "travel time precision not strictly positive";
+      throw std::invalid_argument(what + " -- '" + std::to_string(timePrecision) + "'");
+    }
+    if (coordinatePrecision <= 0) {
+      const std::string what = "coordinate precision not strictly positive";
+      throw std::invalid_argument(what + " -- '" + std::to_string(coordinatePrecision) + "'");
+    }
+    return GraphT(infile, DimacsImporter(distPrecision, timePrecision, coordinatePrecision));
+  } else if (format == "matsim") {
+    const auto sys = clp.getValue<std::string>("ts", "car");
+    const auto crs = clp.getValue<int>("cs", 31468);
+    return GraphT(infile, MatSimImporter(sys, crs));
   } else if (format == "osm") {
     return GraphT(infile, OsmImporter());
   } else if (format == "visum") {
